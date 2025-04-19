@@ -17,6 +17,7 @@ class APIGateway(ResponseProvider):
             target_data = payload.get("target_system")
             route_data = payload.get("route")
             actual_data = payload.get("data", {})
+            file_data = payload.get("files", {})
             if not target_data or not route_data:
                 return ResponseProvider(
                     message="Missing target_system or route",
@@ -46,28 +47,22 @@ class APIGateway(ResponseProvider):
                 route_data["target"] = target_instance
                 route_data["forward_path"] = route_data["path"]
                 route_instance = self.registry.database("Route", "create", data=route_data)
-            forward_url = target_instance.base_url.rstrip("/") + "/" + route_instance.forward_path.lstrip("/")
+            forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
             method = route_instance.method
+            forward_payload = {
+                "data": actual_data,
+                "files": {k: open(v, 'rb') for k, v in file_data.items()} if file_data else None
+            }
             try:
-                if method == "GET":
-                    response = client.send(route_instance.forward_path, {"params": actual_data})
-                elif method == "POST":
-                    response = client.send(route_instance.forward_path, {"data": actual_data})
-                elif method == "PUT":
-                    response = client.send(route_instance.forward_path, {"data": actual_data})
-                elif method == "DELETE":
-                    response = client.send(route_instance.forward_path, {"data": actual_data})
-                else:
-                    return ResponseProvider(
-                        message=f"Unsupported HTTP method: {method}",
-                        code="unsupported_method"
-                    ).bad_request()
+                response = client.send(route_instance.forward_path, forward_payload)
             except requests.RequestException as e:
                 return ResponseProvider(
                     message=f"Failed to forward request: {str(e)}",
                     code="forwarding_error"
                 ).exception()
+            content_type = response.headers.get("Content-Type", "")
+            body = response.json() if content_type.startswith("application/json") else response.text
             return ResponseProvider(data={
                 "target_system": {
                     "id": target_instance.id,
@@ -82,14 +77,14 @@ class APIGateway(ResponseProvider):
                 },
                 "forwarded_response": {
                     "status_code": response.status_code,
-                    "body": response.json() if response.headers.get("Content-Type", "").startswith("application/json") else response.text
+                    "body": body
                 }
             }).success()
         except json.JSONDecodeError:
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:
             return ResponseProvider(message=str(e), code="unexpected_error").exception()
-        
+
 from django.urls import re_path
 
 urlpatterns = [

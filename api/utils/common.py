@@ -1,54 +1,34 @@
-import json
 from datetime import datetime, date, timedelta
 from decimal import Decimal
-
-from django.http import QueryDict
-
-from django.http import QueryDict
 import json
-
+from django.http import QueryDict
 
 def get_request_data(request):
-	"""
-	Retrieves the request data including file data regardless of request method or content type.
-	@param request: The Django HttpRequest.
-	@type request: WSGIRequest
-	@return: A combined dict of data and files
-	@rtype: dict
-	"""
-	try:
-		data = {}
-		content_type = request.META.get('CONTENT_TYPE', '')
-		if content_type.startswith('application/json'):
-			try:
-				data = json.loads(request.body)
-			except json.JSONDecodeError:
-				data = {}
-		elif content_type.startswith('multipart/form-data'):
-			data = request.POST.copy()
-			data = data.dict()
-			if request.FILES:
-				for key, file in request.FILES.items():
-					data[key] = file
-		elif request.method == 'GET':
-			data = request.GET.copy()
-			data = data.dict()
-		elif request.method == 'POST':
-			data = request.POST.copy()
-			data = data.dict()
-			if request.FILES:
-				for key, file in request.FILES.items():
-					data[key] = file
-		if not data:
-			try:
-				data = json.loads(request.body)
-			except Exception:
-				data = {}
-		return data
-	except Exception as e:
-		print(f'get_request_data Exception: {e}')
-		return {}
-
+    """
+    Retrieves all request data, including form fields and files.
+    @return: dict with keys 'data' and 'files'
+    """
+    try:
+        if request.content_type.startswith('multipart/form-data'):
+            data = request.POST.copy().dict()
+            files = request.FILES.copy()
+        elif request.content_type == 'application/json':
+            data = json.loads(request.body)
+            files = {}
+        elif request.method == 'GET':
+            data = request.GET.dict()
+            files = {}
+        else:
+            try:
+                data = json.loads(request.body)
+                files = {}
+            except Exception:
+                data = {}
+                files = {}
+        return {"data": data, "files": files}
+    except Exception as e:
+        print(f"get_request_data Exception: {e}")
+        return {"data": {}, "files": {}}
 
 def get_clean_request_data(request):
 	"""
