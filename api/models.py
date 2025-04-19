@@ -14,6 +14,8 @@ class TargetSystem(GenericBaseModel):
     name = models.CharField(max_length=100)
     base_url = models.URLField()
     app = models.CharField(max_length=100, null=True, blank=True)
+    consumer_key = models.CharField(max_length=600, null=True, blank=True)
+    consumer_secret = models.CharField(max_length=600, null=True, blank=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
 
     def __str__(self):
