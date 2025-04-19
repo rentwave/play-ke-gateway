@@ -44,6 +44,7 @@ class APIGateway(ResponseProvider):
             else:
                 route_data["method"] = route_data["method"].upper()
                 route_data["target"] = target_instance
+                route_data["forward_path"] = route_data["path"]
                 route_instance = self.registry.database("Route", "create", data=route_data)
             forward_url = target_instance.base_url.rstrip("/") + "/" + route_instance.forward_path.lstrip("/")
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
