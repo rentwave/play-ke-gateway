@@ -3,7 +3,7 @@ from .models import TargetSystem, Route, OAuthClient, AccessToken, RequestLog
 
 @admin.register(TargetSystem)
 class TargetSystemAdmin(admin.ModelAdmin):
-    list_display = ('name', 'base_url', 'app','state')
+    list_display = ('name', 'base_url', 'consumer_key', 'consumer_secret','app','state')
     list_filter = ('state',)
     
 @admin.register(Route)
