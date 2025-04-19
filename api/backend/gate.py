@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
@@ -13,7 +14,18 @@ class APIGateway(ResponseProvider):
     @auth_required
     def dynamic_api_gateway(self, request):
         try:
-            payload = get_request_data(request)
+            content_type = request.content_type
+            if content_type == 'application/json':
+                payload = get_request_data(request)
+            elif content_type.startswith('multipart/form-data'):
+                payload = {
+                    'target_system': json.loads(request.POST.get('target_system', '{}')),
+                    'route': json.loads(request.POST.get('route', '{}')),
+                    'data': json.loads(request.POST.get('data', '{}')),
+                    'files': request.FILES
+                }
+            else:
+                return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
             target_data = payload.get("target_system")
             route_data = payload.get("route")
             actual_data = payload.get("data", {})

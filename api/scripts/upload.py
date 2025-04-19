@@ -1,45 +1,32 @@
 import requests
-import json
-import base64
 
 url = "https://play-gate.254.radio/api/proxy/"
 headers = {
-    "Authorization": "Bearer nIHQiEVPy6DlCYu71Yf4mKvrd8IABP43qPwLYet8dcbVd1bCa5c_tac4XmKGLeMV0X-T678ZObBhflISFnjm2g",
-    "Content-Type": "application/json"
+    "Authorization": "Bearer a19496f4fdfcbc89f9ddfab7f5f6614d7a87d304b5575fd6779fbb6e4f66680116dc26f5e7552abe3e295f7034821b5e3efa"
 }
-file_path = "/Users/mac/Downloads/PLAYKE (2).mp3"
-with open(file_path, "rb") as f:
-    encoded_file = base64.b64encode(f.read()).decode("utf-8")
+
 payload = {
-    "target_system": {
-        "name": "PlayContentService"
-    },
-    "route": {
-        "path": "api/upload-media/",
-        "method": "POST"
-    },
-    "data": {
-        "title": "Sample Title",
-        "artist": "12d21298-cadf-4da3-a13c-f78409f11bbd",
-        "album": "14072780-8afa-4375-8276-ce66e605bcfe",
-        "genre": "Hip-Hop",
-        "media_type": "audio",
-        "release_date": "2024-12-31",
-        "language": "English",
-        "tags": ["relax", "summer"],
-        "is_explicit": False
-    },
-    "files": {
-        "file": {
-            "filename": "PLAYKE.mp3",
-            "content_type": "audio/mpeg",
-            "content": encoded_file
-        }
-    }
+    "target_system[name]": "play-content",
+    "route[path]": "/api/media/upload/",
+    "route[method]": "POST",
+    "data[title]": "Sample Title",
+    "data[artist]": "12d21298-cadf-4da3-a13c-f78409f11bbd",
+    "data[album]": "14072780-8afa-4375-8276-ce66e605bcfe",
+    "data[genre]": "Hip-Hop",
+    "data[media_type]": "audio",
+    "data[release_date]": "2024-12-31",
+    "data[language]": "English",
+    "data[tags]": '["relax", "summer"]',
+    "data[is_explicit]": "false",
 }
-response = requests.post(url, headers=headers, data=json.dumps(payload))
+files = {
+    "files[file]": open('/Users/mac/Downloads/PLAYKE (2).mp3', 'rb')
+}
+
+response = requests.post(url, headers=headers, data=payload, files=files)
+
 print(response.status_code)
 try:
     print(response.json())
 except ValueError:
-    print("Response is not valid JSON")
+    print("Response content is not in JSON format.")
