@@ -90,22 +90,9 @@ class APIGateway(ResponseProvider):
             except json.JSONDecodeError:
                 body = response.text
             return ResponseProvider(data={
-                "target_system": {
-                    "id": target_instance.id,
-                    "name": target_instance.name,
-                    "base_url": target_instance.base_url
-                },
-                "route": {
-                    "id": route_instance.id,
-                    "path": route_instance.path,
-                    "method": route_instance.method,
-                    "forward_path": route_instance.forward_path
-                },
-                "forwarded_response": {
                     "status_code": response.status_code,
                     "body": body
-                }
-            }).success()
+                }).success()
         except json.JSONDecodeError:
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:
