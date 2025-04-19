@@ -2,7 +2,7 @@ import requests
 
 url = "https://play-gate.254.radio/api/proxy/"
 headers = {
-    "Authorization": "Bearer a19496f4fdfcbc89f9ddfab7f5f6614d7a87d304b5575fd6779fbb6e4f66680116dc26f5e7552abe3e295f7034821b5e3efa"
+    "Authorization": "Bearer cc753f73499c23d2ec1c1db3d32ea6a282fb96d6c5d12073371f57cc8b9e025212cf6959b8cf0451fb4e610f8d93c4214ecf"
 }
 
 payload = {

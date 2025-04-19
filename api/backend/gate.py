@@ -35,15 +35,19 @@ class APIGateway(ResponseProvider):
                     message="Missing target_system or route",
                     code="missing_fields"
                 ).bad_request()
-            target_query = {"name": target_data["name"]}
+            target_query = {"name": target_data.get("name")}
             existing_target = self.registry.database("TargetSystem", "filter", data=target_query)
             if not existing_target.exists():
                 return ResponseProvider(
                     message="target_system does not exist",
                     code="404.000"
                 ).bad_request()
+            
             target_instance = existing_target.first()
-            route_query = {"path": route_data["path"], "method": route_data["method"].upper()}
+            route_query = {
+                "path": route_data.get("path"),
+                "method": route_data.get("method", "").upper()
+            }
             existing_route = self.registry.database("Route", "filter", data=route_query)
             if existing_route.exists():
                 route_instance = existing_route.first()
@@ -53,19 +57,26 @@ class APIGateway(ResponseProvider):
                 if route_instance.target_id != target_instance.id:
                     updates["target"] = target_instance
                 if updates:
-                    route_instance = self.registry.database("Route", "update", instance_id=route_instance.id,
-                                                            data=updates)
+                    route_instance = self.registry.database(
+                        "Route", "update", instance_id=route_instance.id, data=updates
+                    )
             else:
-                route_data["method"] = route_data["method"].upper()
+                route_data["method"] = route_data.get("method", "").upper()
                 route_data["target"] = target_instance
                 route_data["forward_path"] = route_data["path"]
                 route_instance = self.registry.database("Route", "create", data=route_data)
             forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
-            method = route_instance.method
+            files_for_forwarding = None
+            if file_data:
+                files_for_forwarding = {
+                    key: (file.name, file, file.content_type)
+                    for key, file in file_data.items()
+                }
+            
             forward_payload = {
                 "data": actual_data,
-                "files": {k: open(v, 'rb') for k, v in file_data.items()} if file_data else None
+                "files": files_for_forwarding
             }
             try:
                 response = client.send(route_instance.forward_path, forward_payload)
