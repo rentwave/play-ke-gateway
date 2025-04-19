@@ -22,8 +22,7 @@ class APIGateway(ResponseProvider):
                 uploaded_file = None
             elif content_type.startswith('multipart/form-data'):
                 payload = {
-                    'target_system': json.loads(request.POST.get('target_system', '{}')),
-                    'route': json.loads(request.POST.get('route', '{}')),
+                    'path': json.loads(request.POST.get('route', '{}')),
                     'data': json.loads(request.POST.get('data', '{}')),
                 }
                 uploaded_file = request.FILES.get("file")
