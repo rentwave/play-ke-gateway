@@ -13,6 +13,7 @@ def generate_client_secret():
 class TargetSystem(GenericBaseModel):
     name = models.CharField(max_length=100)
     base_url = models.URLField()
+    app = models.CharField(max_length=100, null=True, blank=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
 
     def __str__(self):

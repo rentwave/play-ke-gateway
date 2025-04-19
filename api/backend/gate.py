@@ -29,15 +29,17 @@ class APIGateway(ResponseProvider):
                 uploaded_file = request.FILES.get("file")
             else:
                 return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
-            target_data = payload.get("target_system")
-            route_data = payload.get("route")
+            route_data = payload.get("path")
+            url_list = route_data.split("/")
+            app = url_list.pop(0)
+            url = "/".join(url_list)
             actual_data = payload.get("data", {})
-            if not target_data or not route_data:
+            if  not route_data:
                 return ResponseProvider(
                     message="Missing target_system or route",
                     code="missing_fields"
                 ).bad_request()
-            target_query = {"name": target_data.get("name")}
+            target_query = {"app": app}
             existing_target = self.registry.database("TargetSystem", "filter", data=target_query)
             if not existing_target.exists():
                 return ResponseProvider(
@@ -46,15 +48,15 @@ class APIGateway(ResponseProvider):
                 ).bad_request()
             target_instance = existing_target.first()
             route_query = {
-                "path": route_data.get("path"),
-                "method": route_data.get("method", "").upper()
+                "path": url,
+                "method": "POST", # Assuming POST method for simplicity
             }
             existing_route = self.registry.database("Route", "filter", data=route_query)
             if existing_route.exists():
                 route_instance = existing_route.first()
                 updates = {}
-                if route_instance.forward_path != route_data["path"]:
-                    updates["forward_path"] = route_data["path"]
+                if route_instance.forward_path != url:
+                    updates["forward_path"] = url
                 if route_instance.target_id != target_instance.id:
                     updates["target"] = target_instance
                 if updates:
@@ -62,9 +64,9 @@ class APIGateway(ResponseProvider):
                         "Route", "update", instance_id=route_instance.id, data=updates
                     )
             else:
-                route_data["method"] = route_data.get("method", "").upper()
+                route_data["method"] = "POST"
                 route_data["target"] = target_instance
-                route_data["forward_path"] = route_data["path"]
+                route_data["forward_path"] = url
                 route_instance = self.registry.database("Route", "create", data=route_data)
             forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
