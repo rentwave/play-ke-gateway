@@ -35,10 +35,10 @@ class AccessTokenAdmin(admin.ModelAdmin):
 	
 @admin.register(RequestLog)
 class RequestLogAdmin(admin.ModelAdmin):
-    list_display = ("created_at", "method", "path", "status_code", "content_type")
-    list_filter = ("status_code", "content_type", "method", "created_at")
+    list_display = ("date_created", "method", "path", "status_code", "content_type")
+    list_filter = ("status_code", "content_type", "method", "date_created")
     search_fields = ("path", "request_body", "response_body")
-    readonly_fields = ("content_type", "method", "path", "request_body", "response_body", "status_code", "created_at")
+    readonly_fields = ("content_type", "method", "path", "request_body", "response_body", "status_code", "date_created")
     ordering = ("-date_created",)
 
     fieldsets = (
