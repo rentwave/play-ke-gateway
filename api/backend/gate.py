@@ -7,9 +7,10 @@ from api.utils.common import get_request_data
 from api.utils.decorators import auth_required
 from api.utils.response_provider import ResponseProvider
 
+
 class APIGateway(ResponseProvider):
     """API Gateway for dynamic routing and forwarding requests to target systems."""
-    
+
     @csrf_exempt
     @auth_required
     def dynamic_api_gateway(self, request):
@@ -42,7 +43,6 @@ class APIGateway(ResponseProvider):
                     message="target_system does not exist",
                     code="404.000"
                 ).bad_request()
-            
             target_instance = existing_target.first()
             route_query = {
                 "path": route_data.get("path"),
@@ -67,7 +67,8 @@ class APIGateway(ResponseProvider):
                 route_instance = self.registry.database("Route", "create", data=route_data)
             forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
-            files_for_forwarding = {'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
+            files_for_forwarding = {
+                'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
             } if uploaded_file else None
             forward_payload = {
                 "data": actual_data,
@@ -81,7 +82,13 @@ class APIGateway(ResponseProvider):
                     code="forwarding_error"
                 ).exception()
             content_type = response.headers.get("Content-Type", "")
-            body = response.json() if content_type.startswith("application/json") else response.text
+            try:
+                if content_type.startswith("application/json"):
+                    body = response.json()
+                else:
+                    body = response.text
+            except json.JSONDecodeError:
+                body = response.text
             return ResponseProvider(data={
                 "target_system": {
                     "id": target_instance.id,
@@ -108,7 +115,5 @@ class APIGateway(ResponseProvider):
 from django.urls import re_path
 
 urlpatterns = [
-	re_path(r'proxy/', APIGateway().dynamic_api_gateway, name='proxy'),
+    re_path(r'proxy/', APIGateway().dynamic_api_gateway, name='proxy'),
 ]
-
-        
