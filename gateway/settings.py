@@ -27,6 +27,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+CSRF_ALLOWED_HOSTS = ['https://play-gate.254.radio',
+	'https://play-inc.254.radio',
+	'https://www.play-inc.254.radio',]
+
+CSRF_TRUSTED_ORIGINS = [
+	'https://play-gate.254.radio',
+	'https://play-inc.254.radio',
+	'https://www.play-inc.254.radio',
+]
 
 # Application definition
 
