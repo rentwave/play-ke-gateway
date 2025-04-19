@@ -57,4 +57,19 @@ class AccessToken(BaseModel):
 
     def __str__(self):
         return f"{self.client.name} Token"
+    
+class RequestLog(BaseModel):
+    content_type = models.CharField(max_length=100)
+    method = models.CharField(max_length=10)
+    path = models.CharField(max_length=255)
+    request_body = models.TextField()
+    response_body = models.TextField()
+    status_code = models.IntegerField()
+    state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
+
+    class Meta:
+        ordering = ['-date_created']
+
+    def __str__(self):
+        return f"[{self.status_code}] {self.method} {self.path} @ {self.date_created.strftime('%Y-%m-%d %H:%M:%S')}"
 

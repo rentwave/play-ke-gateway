@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 from api.backend.process import APIGatewayClient
+from api.models import RequestLog
 from api.utils.common import get_request_data
 from api.utils.decorators import auth_required
 from api.utils.response_provider import ResponseProvider
@@ -10,7 +11,7 @@ from api.utils.response_provider import ResponseProvider
 
 class APIGateway(ResponseProvider):
     """API Gateway for dynamic routing and forwarding requests to target systems."""
-
+    
     @csrf_exempt
     @auth_required
     def dynamic_api_gateway(self, request):
@@ -70,6 +71,7 @@ class APIGateway(ResponseProvider):
             files_for_forwarding = {
                 'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
             } if uploaded_file else None
+            
             forward_payload = {
                 "data": actual_data,
                 "files": files_for_forwarding
@@ -77,25 +79,51 @@ class APIGateway(ResponseProvider):
             try:
                 response = client.send(route_instance.forward_path, forward_payload)
             except requests.RequestException as e:
+                RequestLog.objects.create(
+                    content_type=content_type,
+                    method=request.method,
+                    path=request.path,
+                    request_body=json.dumps(payload, indent=2),
+                    response_body=str(e),
+                    status_code=500
+                )
                 return ResponseProvider(
                     message=f"Failed to forward request: {str(e)}",
                     code="forwarding_error"
                 ).exception()
-            content_type = response.headers.get("Content-Type", "")
+            response_content_type = response.headers.get("Content-Type", "")
             try:
-                if content_type.startswith("application/json"):
+                if response_content_type.startswith("application/json"):
                     body = response.json()
                 else:
                     body = response.text
             except json.JSONDecodeError:
                 body = response.text
+            RequestLog.objects.create(
+                content_type=content_type,
+                method=request.method,
+                path=request.path,
+                request_body=json.dumps(payload, indent=2),
+                response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
+                status_code=response.status_code
+            )
+            
             return ResponseProvider(data={
-                    "status_code": response.status_code,
-                    "body": body
-                }).success()
+                "status_code": response.status_code,
+                "body": body
+            }).success()
+        
         except json.JSONDecodeError:
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:
+            RequestLog.objects.create(
+                content_type=request.content_type,
+                method=request.method,
+                path=request.path,
+                request_body=request.body.decode("utf-8") if request.body else "",
+                response_body=str(e),
+                status_code=500
+            )
             return ResponseProvider(message=str(e), code="unexpected_error").exception()
 
 
