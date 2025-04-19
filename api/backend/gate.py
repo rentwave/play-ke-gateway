@@ -17,19 +17,19 @@ class APIGateway(ResponseProvider):
             content_type = request.content_type
             if content_type == 'application/json':
                 payload = get_request_data(request)
+                uploaded_file = None
             elif content_type.startswith('multipart/form-data'):
                 payload = {
                     'target_system': json.loads(request.POST.get('target_system', '{}')),
                     'route': json.loads(request.POST.get('route', '{}')),
                     'data': json.loads(request.POST.get('data', '{}')),
-                    'files': request.FILES
                 }
+                uploaded_file = request.FILES.get("file")
             else:
                 return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
             target_data = payload.get("target_system")
             route_data = payload.get("route")
             actual_data = payload.get("data", {})
-            file_data = payload.get("files", {})
             if not target_data or not route_data:
                 return ResponseProvider(
                     message="Missing target_system or route",
@@ -67,16 +67,11 @@ class APIGateway(ResponseProvider):
                 route_instance = self.registry.database("Route", "create", data=route_data)
             forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
-            files_for_forwarding = None
-            if file_data:
-                files_for_forwarding = {
-                    key: (file.name, file, file.content_type)
-                    for key, file in file_data.items()
-                }
-            
+            files_for_forwarding = {'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
+            } if uploaded_file else None
             forward_payload = {
                 "data": actual_data,
-                "file": files_for_forwarding
+                "files": files_for_forwarding
             }
             try:
                 response = client.send(route_instance.forward_path, forward_payload)
