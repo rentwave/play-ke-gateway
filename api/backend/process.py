@@ -55,6 +55,10 @@ class APIGatewayClient:
         """Public method to send data to the desired route on the target system."""
         data = payload.get("data", {})
         files = payload.get("files", None)
-        params = payload.get("params", None)
-        method = getattr(self.target_system, "method", "POST").upper()
-        return self.__make_request(method=method, endpoint=route, data=data, files=files, params=params)
+        if files:
+            params = payload.get("params", None)
+            method = getattr(self.target_system, "method", "POST").upper()
+            return self.__make_request(method=method, endpoint=route, data=data, files=files, params=params)
+        else:
+            method = getattr(self.target_system, "method", "POST").upper()
+            return self.__make_request(method=method, endpoint=route, data=data)
