@@ -46,7 +46,7 @@ class APIGateway(ResponseProvider):
             target_instance = existing_target.first()
             route_query = {
                 "path": url,
-                "method": "POST", # Assuming POST method for simplicity
+                "method": "POST",
             }
             existing_route = self.registry.database("Route", "filter", data=route_query)
             if existing_route.exists():
