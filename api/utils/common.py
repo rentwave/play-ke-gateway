@@ -4,41 +4,50 @@ from decimal import Decimal
 
 from django.http import QueryDict
 
+from django.http import QueryDict
+import json
+
 
 def get_request_data(request):
 	"""
-	Retrieves the request data irrespective of the method and type it was send.
+	Retrieves the request data including file data regardless of request method or content type.
 	@param request: The Django HttpRequest.
 	@type request: WSGIRequest
-	@return: The data from the request as a dict
-	@rtype: QueryDict
+	@return: A combined dict of data and files
+	@rtype: dict
 	"""
 	try:
-		data = None
-		if request is not None:
-			request_meta = getattr(request, 'META', {})
-			request_method = getattr(request, 'method', None)
-			if request_meta.get('CONTENT_TYPE', '') == 'application/json':
+		data = {}
+		content_type = request.META.get('CONTENT_TYPE', '')
+		if content_type.startswith('application/json'):
+			try:
 				data = json.loads(request.body)
-			elif str(request_meta.get('CONTENT_TYPE', '')).startswith('multipart/form-data;'):  # Special handling for
-				data = request.POST.copy()
-				data = data.dict()
-			elif request_method == 'GET':
-				data = request.GET.copy()
-				data = data.dict()
-			elif request_method == 'POST':
-				data = request.POST.copy()
-				data = data.dict()
-			if not data:
-				request_body = getattr(request, 'body', None)
-				if request_body:
-					data = json.loads(request_body)
-				else:
-					data = QueryDict()
-			return data
+			except json.JSONDecodeError:
+				data = {}
+		elif content_type.startswith('multipart/form-data'):
+			data = request.POST.copy()
+			data = data.dict()
+			if request.FILES:
+				for key, file in request.FILES.items():
+					data[key] = file
+		elif request.method == 'GET':
+			data = request.GET.copy()
+			data = data.dict()
+		elif request.method == 'POST':
+			data = request.POST.copy()
+			data = data.dict()
+			if request.FILES:
+				for key, file in request.FILES.items():
+					data[key] = file
+		if not data:
+			try:
+				data = json.loads(request.body)
+			except Exception:
+				data = {}
+		return data
 	except Exception as e:
-		print('get_request_data Exception: %s', e)
-	return QueryDict()
+		print(f'get_request_data Exception: {e}')
+		return {}
 
 
 def get_clean_request_data(request):
