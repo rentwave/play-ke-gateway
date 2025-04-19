@@ -2,11 +2,14 @@ import secrets
 from django.db import models
 from base.models import BaseModel, GenericBaseModel, State
 
+import secrets
+
 def generate_client_id():
-    return secrets.token_urlsafe(50)
+    return secrets.token_hex(50)
 
 def generate_client_secret():
-    return secrets.token_urlsafe(100)
+    return secrets.token_hex(100)
+
 
 class TargetSystem(GenericBaseModel):
     name = models.CharField(max_length=100)
