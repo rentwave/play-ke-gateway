@@ -76,7 +76,7 @@ class APIGateway(ResponseProvider):
             
             forward_payload = {
                 "data": actual_data,
-                "files": files_for_forwarding
+                "file": files_for_forwarding
             }
             try:
                 response = client.send(route_instance.forward_path, forward_payload)
