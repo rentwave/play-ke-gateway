@@ -29,8 +29,8 @@ class Route(BaseModel):
 
 
 class OAuthClient(GenericBaseModel):
-    client_id = models.CharField(max_length=120, unique=True, default=generate_client_id())
-    client_secret = models.CharField(max_length=256, unique=True, default=generate_client_secret())
+    client_id = models.CharField(max_length=300, unique=True, default=generate_client_id())
+    client_secret = models.CharField(max_length=500, unique=True, default=generate_client_secret())
     is_active = models.BooleanField(default=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
     
@@ -44,7 +44,7 @@ class OAuthClient(GenericBaseModel):
 
 class AccessToken(BaseModel):
     client = models.ForeignKey(OAuthClient, on_delete=models.CASCADE)
-    token = models.CharField(max_length=128, unique=True)
+    token = models.CharField(max_length=300, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_in = models.IntegerField(default=3600)  # in seconds
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
