@@ -30,35 +30,37 @@ class APIGatewayClient:
             basic_auth = self._basic_auth()
             if basic_auth:
                 headers["Authorization"] = f"Basic {basic_auth}"
+            request_args = {
+                "url": url,
+                "headers": headers,
+                "verify": False,
+                "timeout": 300
+            }
+
             if method == "GET":
-                response = requests.get(url, params=params or data, headers=headers, verify=False, timeout=300)
-            elif method == "POST":
+                request_args["params"] = params or data
+                response = requests.get(**request_args)
+            elif method in ["POST", "PUT"]:
                 if files:
-                    response = requests.post(url, data=data, files=files, headers=headers, verify=False, timeout=300)
+                    request_args["data"] = data
+                    request_args["files"] = files
                 else:
-                    response = requests.post(url, json=data, headers=headers, verify=False, timeout=300)
-            elif method == "PUT":
-                if files:
-                    response = requests.put(url, data=data, files=files, headers=headers, verify=False, timeout=300)
-                else:
-                    response = requests.put(url, json=data, headers=headers, verify=False, timeout=300)
+                    request_args["json"] = data
+                response = getattr(requests, method.lower())(**request_args)
             elif method == "DELETE":
-                response = requests.delete(url, json=data, headers=headers, verify=False, timeout=300)
+                request_args["json"] = data
+                response = requests.delete(**request_args)
             else:
                 raise ValueError(f"Unsupported method: {method}")
+
             return response
-        except Exception as e:
-            print("API Gateway Exception: %s", traceback.format_exc())
-            return {"code": "500.500.0001", "message": "API Gateway request failed with exception"}
+        except Exception:
+            print("API Gateway Exception:\n", traceback.format_exc())
+            raise
 
     def send(self, route, payload):
         """Public method to send data to the desired route on the target system."""
         data = payload.get("data", {})
         files = payload.get("files", None)
-        if files:
-            params = payload.get("params", None)
-            method = getattr(self.target_system, "method", "POST").upper()
-            return self.__make_request(method=method, endpoint=route, data=data, files=files, params=params)
-        else:
-            method = getattr(self.target_system, "method", "POST").upper()
-            return self.__make_request(method=method, endpoint=route, data=data)
+        method = getattr(self.target_system, "method", "POST").upper()
+        return self.__make_request(method=method, endpoint=route, data=data, files=files)
