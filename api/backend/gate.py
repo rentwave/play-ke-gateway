@@ -8,7 +8,7 @@ from api.utils.response_provider import ResponseProvider
 
 class APIGateway(ResponseProvider):
     """API Gateway for dynamic routing and forwarding requests to target systems."""
-
+    
     @csrf_exempt
     @auth_required
     def dynamic_api_gateway(self, request):
@@ -41,7 +41,8 @@ class APIGateway(ResponseProvider):
                 if route_instance.target_id != target_instance.id:
                     updates["target"] = target_instance
                 if updates:
-                    route_instance = self.registry.database("Route", "update", instance_id=route_instance.id, data=updates)
+                    route_instance = self.registry.database("Route", "update", instance_id=route_instance.id,
+                                                            data=updates)
             else:
                 route_data["method"] = route_data["method"].upper()
                 route_data["target"] = target_instance
@@ -84,6 +85,7 @@ class APIGateway(ResponseProvider):
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:
             return ResponseProvider(message=str(e), code="unexpected_error").exception()
+
 
 from django.urls import re_path
 

@@ -1,4 +1,3 @@
-import secrets
 from django.db import models
 from base.models import BaseModel, GenericBaseModel, State
 

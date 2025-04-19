@@ -51,15 +51,10 @@ def generate_oauth_token(request):
 			operation='get',
 			data={'client_id': client_id, 'client_secret': client_secret}
 		)
-		token_str = secrets.token_urlsafe(64)
+		token_str = secrets.token_hex(50)
 		access_token = registry.database(
-			model_name='accesstoken',
-			operation='create', data={
-				'client': client,
-				'token': token_str,
-				'expires_in': 3600,
-				'state': client.state
-			}
+			model_name='accesstoken', operation='create',
+			data={'client': client, 'token': token_str, 'expires_in': 3600, 'state': client.state}
 		)
 		return ResponseProvider(
 			data={'access_token': access_token.token, 'expires_in': access_token.expires_in, 'token_type': 'Bearer'},

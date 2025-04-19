@@ -4,7 +4,7 @@ import base64
 
 url = "https://play-gate.254.radio/api/proxy/"
 headers = {
-    "Authorization": "Bearer your_token",
+    "Authorization": "Bearer nIHQiEVPy6DlCYu71Yf4mKvrd8IABP43qPwLYet8dcbVd1bCa5c_tac4XmKGLeMV0X-T678ZObBhflISFnjm2g",
     "Content-Type": "application/json"
 }
 file_path = "/Users/mac/Downloads/PLAYKE (2).mp3"
