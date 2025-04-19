@@ -25,6 +25,7 @@ class APIGatewayClient:
             "X-Consumer-Secret": self.target_system.consumer_secret}
         resp = requests.post(url=self.target_system.auth_url, data={ "X-Consumer-Key": self.target_system.consumer_key,
             "X-Consumer-Secret": self.target_system.consumer_secret}, headers=headers)
+        print(resp.json())
         return resp.json().get("access_token")
 
     def __make_request(self, method, endpoint, data=None, files=None, params=None):
