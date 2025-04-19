@@ -3,10 +3,10 @@ from django.db import models
 from base.models import BaseModel, GenericBaseModel, State
 
 def generate_client_id():
-    return secrets.token_urlsafe(64)
+    return secrets.token_urlsafe(50)
 
 def generate_client_secret():
-    return secrets.token_urlsafe(128)
+    return secrets.token_urlsafe(100)
 
 class TargetSystem(GenericBaseModel):
     name = models.CharField(max_length=100)
