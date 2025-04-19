@@ -13,7 +13,6 @@ class APIGateway(ResponseProvider):
     """API Gateway for dynamic routing and forwarding requests to target systems."""
     
     @csrf_exempt
-    @auth_required
     def dynamic_api_gateway(self, request):
         try:
             content_type = request.content_type
@@ -22,13 +21,13 @@ class APIGateway(ResponseProvider):
                 uploaded_file = None
             elif content_type.startswith('multipart/form-data'):
                 payload = {
-                    'path': json.loads(request.POST.get('route', '{}')),
+                    'route': json.loads(request.POST.get('route', '{}')),
                     'data': json.loads(request.POST.get('data', '{}')),
                 }
                 uploaded_file = request.FILES.get("file")
             else:
                 return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
-            route_data = payload.get("path")
+            route_data = payload.get("route")
             url_list = route_data.split("/")
             app = url_list.pop(0)
             url = "/".join(url_list)
