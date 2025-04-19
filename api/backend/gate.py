@@ -5,7 +5,6 @@ import requests
 from api.backend.process import APIGatewayClient
 from api.models import RequestLog
 from api.utils.common import get_request_data
-from api.utils.decorators import auth_required
 from api.utils.response_provider import ResponseProvider
 
 
@@ -21,7 +20,7 @@ class APIGateway(ResponseProvider):
                 uploaded_file = None
             elif content_type.startswith('multipart/form-data'):
                 payload = {
-                    'route': json.loads(request.POST.get('route', '{}')),
+                    'route': request.POST.get('route', '{}'),
                     'data': json.loads(request.POST.get('data', '{}')),
                 }
                 uploaded_file = request.FILES.get("file")
@@ -71,7 +70,6 @@ class APIGateway(ResponseProvider):
             files_for_forwarding = {
                 'file': (uploaded_file.name, uploaded_file, uploaded_file.content_type)
             } if uploaded_file else None
-            
             forward_payload = {
                 "data": actual_data,
                 "files": files_for_forwarding
@@ -99,20 +97,18 @@ class APIGateway(ResponseProvider):
                     body = response.text
             except json.JSONDecodeError:
                 body = response.text
-            RequestLog.objects.create(
-                content_type=content_type,
-                method=request.method,
-                path=request.path,
-                request_body=json.dumps(payload, indent=2),
-                response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
-                status_code=response.status_code
-            )
-            
+            # RequestLog.objects.create(
+            #     content_type=content_type,
+            #     method=request.method,
+            #     path=request.path,
+            #     request_body=json.dumps(payload, indent=2),
+            #     response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
+            #     status_code=response.status_code
+            # )
             return ResponseProvider(data={
                 "status_code": response.status_code,
                 "body": body
             }).success()
-        
         except json.JSONDecodeError:
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:

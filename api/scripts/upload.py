@@ -1,32 +1,31 @@
 import requests
-
 url = "https://play-gate.254.radio/api/proxy/"
-headers = {
-    "Authorization": "Bearer cc753f73499c23d2ec1c1db3d32ea6a282fb96d6c5d12073371f57cc8b9e025212cf6959b8cf0451fb4e610f8d93c4214ecf"
-}
 
+file_path = "/Users/mac/Downloads/PLAYKE (2).mp3"
 payload = {
-    "target_system[name]": "play-content",
-    "route[path]": "/api/media/upload/",
-    "route[method]": "POST",
-    "data[title]": "Sample Title",
-    "data[artist]": "12d21298-cadf-4da3-a13c-f78409f11bbd",
-    "data[album]": "14072780-8afa-4375-8276-ce66e605bcfe",
-    "data[genre]": "Hip-Hop",
-    "data[media_type]": "audio",
-    "data[release_date]": "2024-12-31",
-    "data[language]": "English",
-    "data[tags]": '["relax", "summer"]',
-    "data[is_explicit]": "false",
+    "route":"content/api/upload-media/",
+    "data": {
+        "title": "Sample Title",
+        "artist": "12d21298-cadf-4da3-a13c-f78409f11bbd",
+        "album": "14072780-8afa-4375-8276-ce66e605bcfe",
+        "genre": "Hip-Hop",
+        "media_type": "audio",
+        "release_date": "2024-12-31",
+        "language": "English",
+        "tags": '["relax", "summer"]',
+        "is_explicit": 'false'
+    }
 }
+
 files = {
-    "files[file]": open('/Users/mac/Downloads/PLAYKE (2).mp3', 'rb')
+    "file": open(file_path, "rb")
 }
 
-response = requests.post(url, headers=headers, data=payload, files=files)
+response = requests.post(url, data=payload, files=files)
+print("Status Code:", response.status_code)
 
-print(response.status_code)
 try:
-    print(response.json())
+    print("Response:", response.json())
 except ValueError:
-    print("Response content is not in JSON format.")
+    print("Non-JSON response:", response.text)
+
