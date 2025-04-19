@@ -25,7 +25,7 @@ admin.site.site_url = "/"
 
 
 urlpatterns = [
-    path('hq/', admin.site.urls),
+    path('console/', admin.site.urls),
     path('api/', include('api.backend.gate'), name='api-endpoints'),
     path('auth/', include('api.views'), name='auth'),
 ]

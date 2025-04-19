@@ -29,8 +29,8 @@ class Route(BaseModel):
 
 
 class OAuthClient(GenericBaseModel):
-    client_id = models.CharField(max_length=64, unique=True, default=generate_client_id())
-    client_secret = models.CharField(max_length=128, unique=True, default=generate_client_secret())
+    client_id = models.CharField(max_length=120, unique=True, default=generate_client_id())
+    client_secret = models.CharField(max_length=256, unique=True, default=generate_client_secret())
     is_active = models.BooleanField(default=True)
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=State.default_state)
     
