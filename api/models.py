@@ -5,6 +5,8 @@ from base.models import BaseModel, GenericBaseModel, State
 class TargetSystem(GenericBaseModel):
     name = models.CharField(max_length=100)
     base_url = models.URLField()
+    auth_url = models.URLField(null=True, blank=True)
+    auth_type = models.CharField(max_length=50, null=True, blank=True)
     app = models.CharField(max_length=100, null=True, blank=True)
     consumer_key = models.CharField(max_length=600, null=True, blank=True)
     consumer_secret = models.CharField(max_length=600, null=True, blank=True)

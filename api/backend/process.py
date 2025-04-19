@@ -18,6 +18,13 @@ class APIGatewayClient:
             return None
         credentials = f"{self.username}:{self.password}".encode("utf-8")
         return base64.b64encode(credentials).decode("utf-8")
+    
+    def _bearer_auth(self):
+        """Generate Bearer Auth header value."""
+        headers = { "X-Consumer-Key": self.target_system.consumer_key,
+            "X-Consumer-Secret": self.target_system.consumer_secret}
+        resp = requests.post(url=self.target_system.auth_url, json={}, headers=headers)
+        return resp.json().get("access_token")
 
     def __make_request(self, method, endpoint, data=None, files=None, params=None):
         """Handles requests to target endpoint with optional data and files."""
@@ -27,9 +34,10 @@ class APIGatewayClient:
             else:
                 url = f"{self.target_system.base_url}/{endpoint.lstrip('/')}"
             headers = {}
-            basic_auth = self._basic_auth()
-            if basic_auth:
-                headers["Authorization"] = f"Basic {basic_auth}"
+            if self.target_system.auth_type == "Bearer":
+                headers["Authorization"] = f"Bearer {self._bearer_auth()}"
+            elif self.target_system.auth_type == "Basic":
+                headers["Authorization"] = f"Basic {self._basic_auth()}"
             request_args = {
                 "url": url,
                 "headers": headers,
