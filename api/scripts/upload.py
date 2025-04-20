@@ -1,11 +1,10 @@
 import requests
 import json
-#
 url = "https://play-gate.254.radio/api/post/"
 file_path = "/Users/mac/Downloads/cheza.mp3"
 
 payload = {
-    "route": "content/api/upload-media/",
+    "route": "content/api/upload/",
     "data": json.dumps({
         "title": "Sample Title",
         "artist": "12d21298-cadf-4da3-a13c-f78409f11bbd",
@@ -28,20 +27,4 @@ try:
     print("Response:", response.json())
 except ValueError:
     print("Non-JSON response:", response.text)
-import requests
-
-headers = {
-    "Content-Type": "application/json"
-}
-payload = {
-    "route":"content/api/stream/",
-    "data": {
-        "media": "bf4c5d5d-ec80-4cbe-bb1d-7bf902958350",
-    }}
-response = requests.post(url, headers=headers, json=payload)
-print("Status Code:", response.status_code)
-
-try:
-    print("Response:", response.json())
-except ValueError:
-    print("Non-JSON response:", response.text)
+ 
