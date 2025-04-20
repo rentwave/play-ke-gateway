@@ -5,5 +5,7 @@ PORT=8021
 exec gunicorn \
     --bind 0.0.0.0:$PORT \
     --access-logfile - \
-    --timeout 300 \
-    gateway.wsgi:application -w 2
+    --timeout 3000 \
+    --worker-class gevent \
+    --workers 4 \
+    gateway.wsgi:application
