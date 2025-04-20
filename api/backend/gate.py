@@ -97,14 +97,14 @@ class APIGateway(ResponseProvider):
                     body = response.text
             except json.JSONDecodeError:
                 body = response.text
-            # RequestLog.objects.create(
-            #     content_type=content_type,
-            #     method=request.method,
-            #     path=request.path,
-            #     request_body=json.dumps(payload, indent=2),
-            #     response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
-            #     status_code=response.status_code
-            # )
+            RequestLog.objects.create(
+                content_type=content_type,
+                method=request.method,
+                path=request.path,
+                request_body=json.dumps(payload, indent=2),
+                response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
+                status_code=response.status_code
+            )
             return ResponseProvider(data={
                 "status_code": response.status_code,
                 "body": body
@@ -126,5 +126,5 @@ class APIGateway(ResponseProvider):
 from django.urls import re_path
 
 urlpatterns = [
-    re_path(r'proxy/', APIGateway().dynamic_api_gateway, name='proxy'),
+    re_path(r'post/', APIGateway().dynamic_api_gateway, name='proxy'),
 ]
