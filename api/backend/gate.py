@@ -77,14 +77,15 @@ class APIGateway(ResponseProvider):
             try:
                 response = client.send(route_instance.forward_path, forward_payload)
             except requests.RequestException as e:
-                RequestLog.objects.create(
-                    content_type=content_type,
-                    method=request.method,
-                    path=request.path,
-                    request_body=json.dumps(payload, indent=2),
-                    response_body=str(e),
-                    status_code=500
-                )
+                log_data = {
+                    "content_type": content_type,
+                    "method": request.method,
+                    "path": request.path,
+                    "request_body": json.dumps(payload, indent=2),
+                    "response_body": str(e),
+                    "status_code": 500,
+                }
+                self.registry.database("RequestLog", "create", data=log_data)
                 return ResponseProvider(
                     message=f"Failed to forward request: {str(e)}",
                     code="forwarding_error"
@@ -97,14 +98,15 @@ class APIGateway(ResponseProvider):
                     body = response.text
             except json.JSONDecodeError:
                 body = response.text
-            RequestLog.objects.create(
-                content_type=content_type,
-                method=request.method,
-                path=request.path,
-                request_body=json.dumps(payload, indent=2),
-                response_body=json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
-                status_code=response.status_code
-            )
+            log_data = {
+                "content_type": content_type,
+                "method": request.method,
+                "path": request.path,
+                "request_body": json.dumps(payload, indent=2),
+                "response_body": json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
+                "status_code": response.status_code,
+            }
+            self.registry.database("RequestLog", "create", data=log_data)
             return ResponseProvider(data={
                 "status_code": response.status_code,
                 "body": body
@@ -112,14 +114,15 @@ class APIGateway(ResponseProvider):
         except json.JSONDecodeError:
             return ResponseProvider(message="Invalid JSON body", code="invalid_json").bad_request()
         except Exception as e:
-            RequestLog.objects.create(
-                content_type=request.content_type,
-                method=request.method,
-                path=request.path,
-                request_body=request.body.decode("utf-8") if request.body else "",
-                response_body=str(e),
-                status_code=500
-            )
+            log_data = {
+                "content_type": request.content_type,
+                "method": request.method,
+                "path": request.path,
+                "request_body": request.body.decode("utf-8") if request.body else "",
+                "response_body": str(e),
+                "status_code": 500,
+            }
+            self.registry.database("RequestLog", "create", data=log_data)
             return ResponseProvider(message=str(e), code="unexpected_error").exception()
 
 
