@@ -6,7 +6,7 @@ file_path = "/Users/mac/Downloads/cheza.mp3"
 payload = {
     "route": "content/api/upload/",
     "data": json.dumps({
-        "title": "Sample Title",
+        "title": "Kichele",
         "artist": "12d21298-cadf-4da3-a13c-f78409f11bbd",
         "album": "14072780-8afa-4375-8276-ce66e605bcfe",
         "genre": "Hip-Hop",

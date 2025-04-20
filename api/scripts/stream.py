@@ -1,4 +1,5 @@
 import requests
+url = "https://play-gate.254.radio/api/post/"
 
 headers = {
 	"Content-Type": "application/json"
@@ -6,7 +7,7 @@ headers = {
 payload = {
 	"route": "content/api/stream/",
 	"data": {
-		"media": "bf4c5d5d-ec80-4cbe-bb1d-7bf902958350",
+		"media": "e6665c33-6f0d-44dc-a7e3-76e1241ebedd",
 	}}
 response = requests.post(url, headers=headers, json=payload)
 print("Status Code:", response.status_code)
