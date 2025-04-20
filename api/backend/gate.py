@@ -61,10 +61,10 @@ class APIGateway(ResponseProvider):
                         "Route", "update", instance_id=route_instance.id, data=updates
                     )
             else:
-                route_data["method"] = "POST"
-                route_data["target"] = target_instance
-                route_data["forward_path"] = url
-                route_instance = self.registry.database("Route", "create", data=route_data)
+                route_query["method"] = "POST"
+                route_query["target"] = target_instance
+                route_query["forward_path"] = url
+                route_instance = self.registry.database("Route", "create", data=route_query)
             forward_url = f"{target_instance.base_url.rstrip('/')}/{route_instance.forward_path.lstrip('/')}"
             client = APIGatewayClient(target_system=target_instance, forward_url=forward_url)
             files_for_forwarding = {
