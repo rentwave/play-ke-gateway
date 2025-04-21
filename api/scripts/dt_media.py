@@ -15,6 +15,16 @@ data = {
 			"searchable": True
 		},
 		{
+			"data": "media_type",
+			"name": "",
+			"orderable": True,
+			"search": {
+				"regex": False,
+				"value": ""
+			},
+			"searchable": True
+		},
+		{
 			"data": "state__name",
 			"name": "",
 			"orderable": True,

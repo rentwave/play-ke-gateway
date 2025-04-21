@@ -3,7 +3,6 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 import requests
 from api.backend.process import APIGatewayClient
-from api.models import RequestLog
 from api.utils.common import get_request_data
 from api.utils.response_provider import ResponseProvider
 
@@ -124,7 +123,6 @@ class APIGateway(ResponseProvider):
             }
             self.registry.database("RequestLog", "create", data=log_data)
             return ResponseProvider(message=str(e), code="unexpected_error").exception()
-
 
 from django.urls import re_path
 
