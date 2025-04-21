@@ -5,13 +5,13 @@ file_path = "/Users/mac/Downloads/budyxcvivmfgfolmb61fcfafd99824.jpg"
 
 
 payload = {
-	"route": "content/api/create-artist/",
+	"route": "content/api/create_artist/",
 	"data": json.dumps({
 	  "name": "John Doe",
-	  "stage_name": "JD Blaze",
+	  "stage_name": "Khaligraph Jones",
 	  "bio": "An Afrobeat artist based in Nairobi.",
 	  "origin_country": "Kenya",
-	  "user_id": "123",
+	  "user_id": "123456",
 	  "debut_year": "2020"
 	})
 }

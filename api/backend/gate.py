@@ -15,22 +15,22 @@ class APIGateway(ResponseProvider):
         try:
             content_type = request.content_type
             if content_type == 'application/json':
-                payload = get_request_data(request)
+                body = get_request_data(request)
+                route = body.get('route')
+                actual_data = body.get('data', {})
                 uploaded_file = None
             elif content_type.startswith('multipart/form-data'):
-                payload = {
-                    'route': request.POST.get('route', '{}'),
-                    'data': json.loads(request.POST.get('data', '{}')),
-                }
-                uploaded_file = request.FILES.get("file")
+                route = request.POST.get('route')
+                actual_data = {k: v for k, v in request.POST.items() if k != 'route'}
+                uploaded_file = request.FILES.get('file')
             else:
                 return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
-            route_data = payload.get("route")
-            url_list = route_data.split("/")
-            app = url_list.pop(0)
-            url = "/".join(url_list)
-            actual_data = payload.get("data", {})
-            if  not route_data:
+            if not route:
+                return JsonResponse({'message': 'Missing route'}, status=400)
+            url_parts = route.strip('/').split('/')
+            app = url_parts.pop(0)
+            url = '/'.join(url_parts)
+            if  not route:
                 return ResponseProvider(
                     message="Missing target_system or route",
                     code="missing_fields"
@@ -80,7 +80,7 @@ class APIGateway(ResponseProvider):
                     "content_type": content_type,
                     "method": request.method,
                     "path": request.path,
-                    "request_body": json.dumps(payload, indent=2),
+                    "request_body": json.dumps(actual_data, indent=2),
                     "response_body": str(e),
                     "status_code": 500,
                 }
@@ -101,7 +101,7 @@ class APIGateway(ResponseProvider):
                 "content_type": content_type,
                 "method": request.method,
                 "path": request.path,
-                "request_body": json.dumps(payload, indent=2),
+                "request_body": json.dumps(actual_data, indent=2),
                 "response_body": json.dumps(body, indent=2) if isinstance(body, dict) else str(body),
                 "status_code": response.status_code,
             }
