@@ -11,11 +11,9 @@ headers = {
 payload = {
 	"route": "auth/user_management/auth/authenticate/",
 	"data": {
-		"data": {
 		"phone_number": "0797270900",
 		"email": "",
 		"password": "123456"
-		}
  }
 }
 

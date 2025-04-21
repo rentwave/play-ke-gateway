@@ -46,7 +46,8 @@ class APIGatewayClient:
                 "verify": False,
                 "timeout": 300
             }
-
+            if self.target_system.auth_type == "Bearer":
+                data['token'] = self._bearer_auth()
             if method == "GET":
                 request_args["params"] = params or data
                 response = requests.get(**request_args)
