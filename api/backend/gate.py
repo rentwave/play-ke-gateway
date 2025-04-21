@@ -24,12 +24,17 @@ class APIGateway(ResponseProvider):
                 actual_data = {k: v for k, v in request.POST.items() if k != 'route'}
                 uploaded_file = request.FILES.get('file')
             else:
-                return JsonResponse({'message': 'Unsupported Content-Type'}, status=400)
+                return ResponseProvider(data={'message': 'Unsupported Content-Type'}).bad_request()
             if not route:
-                return JsonResponse({'message': 'Missing route'}, status=400)
+                return ResponseProvider(data={'message': 'Missing route'}).bad_request()
             url_parts = route.strip('/').split('/')
+            if not url_parts:
+                return ResponseProvider(data={'message': 'Invalid route format'}).bad_request()
             app = url_parts.pop(0)
             url = '/'.join(url_parts)
+            print("url_parts", url)
+            if not url.endswith('/'):
+                url += '/'
             if  not route:
                 return ResponseProvider(
                     message="Missing target_system or route",
