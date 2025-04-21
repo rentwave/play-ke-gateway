@@ -58,6 +58,9 @@ jobs:
                   script_stop: true
                   script: |
                       cd /srv/apps/live/play-ke-gateway
+                      git stash
+                      git pull origin master
+                      
                       LATEST_TAG=${{ env.docker_tag }}
                       echo "Updating .env file with BACKEND_TAG=${LATEST_TAG}"
                       echo "BACKEND_TAG=${LATEST_TAG}" >> .env
