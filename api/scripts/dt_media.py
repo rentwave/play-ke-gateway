@@ -1,77 +1,20 @@
 import requests
+from requests.structures import CaseInsensitiveDict
 
-url = "https://play-gate.254.radio/api/post/"
-data = {
-	"draw": 1,
-	"columns": [
-		{
-			"data": "id",
-			"name": "",
-			"orderable": True,
-			"search": {
-				"regex": False,
-				"value": ""
-			},
-			"searchable": True
-		},
-		{
-			"data": "media_type",
-			"name": "",
-			"orderable": True,
-			"search": {
-				"regex": False,
-				"value": ""
-			},
-			"searchable": True
-		},
-		{
-			"data": "state__name",
-			"name": "",
-			"orderable": True,
-			"search": {
-				"regex": False,
-				"value": ""
-			},
-			"searchable": True
-		},
-		{
-			"data": "date_created",
-			"name": "",
-			"orderable": True,
-			"search": {
-				"regex": False,
-				"value": ""
-			},
-			"searchable": True
-		}
-	
-	],
-	"state_filter": "",
-	"order": [
-		{
-			"column": 7,
-			"dir": "DESC"
-		}
-	],
-	"start": 0,
-	"length": 10,
-	"search": {
-		"value": "",
-		"regex": False
-	},
-}
-headers = {
-	"Content-Type": "application/json"
-}
-payload = {
-	"route": "content/api/dt_media/",
-	"data": data
-}
+headers = CaseInsensitiveDict()
+headers["Accept"] = "application/json"
+headers["Authorization"] = "Bearer NmM3ODRiMDkwOGE4ZWFlNDI1ZGRiYThhZmY4NGQ3"
+filePath = "/Users/mac/Downloads/__CAROLINESTATEMENT.pdf"
+url = 'https://api.spinmobile.co/api/file/upload/'
+files = {'document': open(filePath, 'rb')}
 
-response = requests.post(url, headers=headers, json=payload)
-print("Status Code:", response.status_code)
+values = {
+    'document_type': 'BANK',
+      'organization_code': 'LP',
+      'decrypter': '',
+      'bank_code': 'NBK',
+      'sender': ''
+}
+resp = requests.post(url, files=files, data=values, headers=headers)
+print(resp.json())
 
-try:
-	print("Response:", response.json())
-except ValueError:
-	print("Non-JSON response:", response.text)

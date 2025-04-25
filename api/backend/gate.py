@@ -16,6 +16,7 @@ class APIGateway(ResponseProvider):
             content_type = request.content_type
             if content_type == 'application/json':
                 body = get_request_data(request)
+                print(body)
                 route = body.get('route')
                 actual_data = body.get('data', {})
                 uploaded_file = None

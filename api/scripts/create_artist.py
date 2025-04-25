@@ -6,8 +6,8 @@ file_path = "/Users/mac/Downloads/budyxcvivmfgfolmb61fcfafd99824.jpg"
 
 payload = {
 "route": "content/api/create_artist/",
-  "name": "John Doe",
-  "stage_name": "Abel Mutua",
+  "name": "Joseph Mwangi",
+  "stage_name": "Jenny Sings",
   "bio": "An Afrobeat artist based in Nairobi.",
   "origin_country": "Kenya",
   "user_id": "123456",
